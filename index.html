@@ -1,201 +1,394 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Heroes Path — Heart Coins Calculator</title>
-<style>
-:root{
-  --bg:#0b0f17; --panel:#121a27; --text:#e7eefc; --muted:#9fb0cc;
-  --good:#34d399; --warn:#fbbf24; --line:#203048;
-}
-body{
-  margin:0;font-family:system-ui;background:var(--bg);color:var(--text);
-}
-.wrap{max-width:1100px;margin:24px auto;padding:0 16px}
-.card{
-  background:var(--panel);
-  border:1px solid rgba(125,211,252,.15);
-  border-radius:16px;padding:16px;margin-bottom:16px;
-}
-h1{margin:0 0 12px}
-label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
-input,select{
-  width:100%;padding:8px;border-radius:10px;
-  border:1px solid rgba(159,176,204,.25);
-  background:#0b1220;color:var(--text);
-}
-input[readonly]{background:#182235;cursor:not-allowed}
-.row{display:grid;gap:10px}
-@media(min-width:700px){ .row.three{grid-template-columns:1fr 1fr 1fr} }
-.big{font-size:26px;font-weight:800}
-.hr{height:1px;background:var(--line);margin:14px 0}
-.kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.box{background:#0f1622;padding:10px;border-radius:12px}
-.good{color:var(--good)} .warn{color:var(--warn)}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Heroes Path — Heart Coins Planner</title>
+  <style>
+    :root{
+      --bg:#0b0f17; --panel:#121a27; --panel2:#0f1622; --text:#e7eefc; --muted:#9fb0cc;
+      --line:#203048; --good:#34d399; --warn:#fbbf24; --bad:#fb7185;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;
+      background:radial-gradient(1200px 700px at 20% 0%, #12213b 0%, var(--bg) 55%) fixed;
+      color:var(--text);
+    }
+    .wrap{max-width:980px;margin:22px auto;padding:0 16px 40px}
+    h1{margin:0 0 8px;font-size:22px}
+    .sub{margin:0 0 16px;color:var(--muted);font-size:13px}
+    .grid{display:grid;gap:14px}
+    @media(min-width:900px){ .grid{grid-template-columns:1.15fr .85fr} }
+    .card{
+      background:linear-gradient(180deg,var(--panel) 0%,var(--panel2) 100%);
+      border:1px solid rgba(125,211,252,.12);
+      border-radius:16px;
+      padding:14px;
+      box-shadow:0 10px 30px rgba(0,0,0,.22);
+    }
+    .card h2{margin:0 0 10px;font-size:15px;color:#d7e6ff}
+    .row{display:grid;gap:10px}
+    @media(min-width:700px){ .row.two{grid-template-columns:1fr 1fr} }
+    @media(min-width:700px){ .row.three{grid-template-columns:1fr 1fr 1fr} }
+    label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
+    input[type="number"], input[type="text"], select{
+      width:100%;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid rgba(159,176,204,.25);
+      background:#0b1220;
+      color:var(--text);
+      outline:none;
+    }
+    input[readonly]{
+      background:rgba(255,255,255,.04);
+      border-color:rgba(159,176,204,.15);
+      cursor:not-allowed;
+    }
+    .hr{height:1px;background:var(--line);margin:12px 0}
+    .big{font-size:30px;font-weight:900;letter-spacing:.2px;margin:2px 0 0}
+    .muted{color:var(--muted);font-size:12px;margin:0}
+    .kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .box{
+      border:1px solid rgba(159,176,204,.18);
+      background:rgba(7,11,18,.35);
+      border-radius:14px;
+      padding:10px;
+    }
+    .box .v{font-size:16px;font-weight:750;margin-top:4px}
+    .good{color:var(--good)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{
+      display:flex;align-items:center;gap:8px;
+      border:1px solid rgba(159,176,204,.18);
+      background:rgba(255,255,255,.04);
+      padding:8px 10px;border-radius:999px;font-size:12px;color:#dce9ff;
+    }
+    .chip input{transform:translateY(1px)}
+    button{
+      border:1px solid rgba(125,211,252,.25);
+      background:rgba(125,211,252,.10);
+      color:#dff3ff;
+      padding:10px 12px;border-radius:12px;
+      cursor:pointer;
+    }
+    button:hover{background:rgba(125,211,252,.16)}
+    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .note{font-size:12px;color:var(--muted);line-height:1.35}
+  </style>
 </head>
 <body>
-<div class="wrap">
+  <div class="wrap">
+    <h1>Heroes Path — Heart Coins Planner</h1>
+    <p class="sub">Pick a goal, enter planned energy + shards. Dungeon points are estimated from Stage 10H / Stage 20 drop rates you provided.</p>
 
-<h1>Heroes Path — Heart Coins Calculator</h1>
+    <div class="grid">
+      <!-- LEFT -->
+      <div>
+        <div class="card">
+          <h2>Goal</h2>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="goalPreset" value="76500" checked> 25 Noldua Fragments (76,500)</label>
+            <label class="chip"><input type="radio" name="goalPreset" value="78000"> 1 Soul (78,000)</label>
+            <label class="chip"><input type="radio" name="goalPreset" value="128000"> Both Souls (128,000)</label>
+            <label class="chip"><input type="radio" name="goalPreset" value="186500"> Souls + 25 Frags (186,500)</label>
+            <label class="chip"><input type="radio" name="goalPreset" value="custom"> Custom</label>
+          </div>
 
-<!-- GOAL -->
-<div class="card">
-<label>Goal</label>
-<select id="goal">
-<option value="76500">25 Fragments (76,500)</option>
-<option value="78000">1 Soul (78,000)</option>
-<option value="128000">Both Souls (128,000)</option>
-<option value="186500">Souls + 25 Frags (186,500)</option>
-</select>
-</div>
+          <div class="row two" style="margin-top:10px">
+            <div>
+              <label for="customGoal">Custom goal (only if Custom selected)</label>
+              <input id="customGoal" type="number" min="0" step="1" value="0" />
+            </div>
+            <div>
+              <label for="activeGoal">Active goal</label>
+              <input id="activeGoal" type="text" readonly />
+            </div>
+          </div>
+        </div>
 
-<!-- FARMING -->
-<div class="card">
-<h3>Farming Estimator</h3>
-<div class="row three">
-<div>
-<label>Farm Mode</label>
-<select id="mode">
-<option value="10H">Stage 10H</option>
-<option value="20">Stage 20</option>
-</select>
-</div>
-<div>
-<label>Energy / Run (static)</label>
-<input id="energy" readonly>
-</div>
-<div>
-<label>Avg Coins / Run</label>
-<input id="avgRun" readonly>
-</div>
-</div>
+        <div class="card">
+          <h2>Planned Energy</h2>
+          <div class="row three">
+            <div>
+              <label for="stage">Stage</label>
+              <select id="stage">
+                <option value="10H">Stage 10H</option>
+                <option value="20">Stage 20</option>
+              </select>
+            </div>
+            <div>
+              <label for="energyPerRun">Energy per run (static)</label>
+              <input id="energyPerRun" type="text" readonly />
+            </div>
+            <div>
+              <label for="energyPlanned">Energy planned</label>
+              <input id="energyPlanned" type="number" min="0" step="1" value="0" />
+            </div>
+          </div>
 
-<div class="row three" style="margin-top:10px">
-<div>
-<label>Runs</label>
-<input id="runs" type="number" value="0" min="0">
-</div>
-<div>
-<label>Farm Points</label>
-<input id="farmPoints" readonly>
-</div>
-<div>
-<label>Coins / Energy</label>
-<input id="cpe" readonly>
-</div>
-</div>
-</div>
+          <div class="row three" style="margin-top:10px">
+            <div>
+              <label for="avgCoinsRun">Avg Heart Coins per run (auto)</label>
+              <input id="avgCoinsRun" type="text" readonly />
+            </div>
+            <div>
+              <label for="avgCoinsEnergy">Avg Heart Coins per energy (auto)</label>
+              <input id="avgCoinsEnergy" type="text" readonly />
+            </div>
+            <div>
+              <label for="fullRuns">Full runs + leftover energy</label>
+              <input id="fullRuns" type="text" readonly />
+            </div>
+          </div>
 
-<!-- SHARDS -->
-<div class="card">
-<h3>Shards</h3>
-<div class="row three">
-<div><label>Mystery (3)</label><input id="mystery" type="number" value="0"></div>
-<div><label>Ancient (300)</label><input id="ancient" type="number" value="0"></div>
-<div><label>Void (750)</label><input id="void" type="number" value="0"></div>
-<div><label>Primal (1800)</label><input id="primal" type="number" value="0"></div>
-<div><label>Sacred (4500)</label><input id="sacred" type="number" value="0"></div>
-</div>
-</div>
+          <div class="note" style="margin-top:8px">
+            Uses full runs only: <b>runs = floor(energy planned / energy per run)</b>.
+          </div>
+        </div>
 
-<!-- SUMMARY -->
-<div class="card">
-<h3>Summary</h3>
-<div>
-<div>Total Points</div>
-<div id="total" class="big">0</div>
-</div>
+        <div class="card">
+          <h2>Planned Shards</h2>
+          <div class="row three">
+            <div>
+              <label for="mystery">Mystery (3)</label>
+              <input id="mystery" type="number" min="0" step="1" value="0" />
+            </div>
+            <div>
+              <label for="ancient">Ancient (300)</label>
+              <input id="ancient" type="number" min="0" step="1" value="0" />
+            </div>
+            <div>
+              <label for="void">Void (750)</label>
+              <input id="void" type="number" min="0" step="1" value="0" />
+            </div>
+          </div>
+          <div class="row two" style="margin-top:10px">
+            <div>
+              <label for="primal">Primal (1,800)</label>
+              <input id="primal" type="number" min="0" step="1" value="0" />
+            </div>
+            <div>
+              <label for="sacred">Sacred (4,500)</label>
+              <input id="sacred" type="number" min="0" step="1" value="0" />
+            </div>
+          </div>
 
-<div class="hr"></div>
+          <div class="btns">
+            <button id="resetBtn" type="button">Reset</button>
+            <button id="exampleBtn" type="button">Example</button>
+          </div>
+        </div>
+      </div>
 
-<div class="kpi">
-<div class="box">
-<div>Remaining</div>
-<div id="remaining">0</div>
-</div>
-<div class="box">
-<div>Energy Needed</div>
-<div id="energyNeeded">—</div>
-</div>
-</div>
-</div>
+      <!-- RIGHT -->
+      <div>
+        <div class="card">
+          <h2>Results</h2>
 
-</div>
+          <p class="muted">Total Heart Coins (energy + shards)</p>
+          <div id="totalCoins" class="big">0</div>
+
+          <div class="hr"></div>
+
+          <div class="kpi">
+            <div class="box">
+              <div class="muted">Coins from energy</div>
+              <div id="coinsFromEnergy" class="v">0</div>
+            </div>
+            <div class="box">
+              <div class="muted">Coins from shards</div>
+              <div id="coinsFromShards" class="v">0</div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="kpi">
+            <div class="box">
+              <div class="muted">Goal</div>
+              <div id="goalOut" class="v">0</div>
+            </div>
+            <div class="box">
+              <div class="muted">Over / Under</div>
+              <div id="deltaOut" class="v">0</div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <p id="statusLine" class="muted">Enter your plan.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <script>
-// Gear points
-const POINTS = {
-r6:{myth:64,leg:51,epic:43,rare:38},
-r5:{myth:51,leg:38,epic:31,rare:26},
-shard:{mystery:3,ancient:300,void:750,primal:1800,sacred:4500}
+/* ===========================
+   Point values (Heart Coins)
+   =========================== */
+const SHARD_POINTS = {
+  mystery: 3,
+  ancient: 300,
+  void: 750,
+  primal: 1800,
+  sacred: 4500
 };
 
-const DROPS={
-"10H":{
-energy:20,
-rank:{r5:0.68,r6:0.32},
-rarity:{rare:0.45,epic:0.32,leg:0.18,myth:0.05}
-},
-"20":{
-energy:16,
-rank:{r5:0.73,r6:0.27},
-rarity:{rare:0.675,epic:0.25,leg:0.075,myth:0}
-}
+const GEAR_POINTS = {
+  r6: { myth: 64, leg: 51, epic: 43, rare: 38 },
+  r5: { myth: 51, leg: 38, epic: 31, rare: 26 }
 };
 
-function expected(rank,rarity){
-return rarity.rare*POINTS[rank].rare+
-rarity.epic*POINTS[rank].epic+
-rarity.leg*POINTS[rank].leg+
-rarity.myth*POINTS[rank].myth;
+/* ===========================
+   Drop distributions provided
+   Assumption: rank and rarity independent
+   =========================== */
+const DROPS = {
+  "10H": {
+    energyPerRun: 20,
+    rank:   { r5: 0.68, r6: 0.32 },
+    rarity: { rare: 0.45, epic: 0.32, leg: 0.18, myth: 0.05 }
+  },
+  "20": {
+    energyPerRun: 16,
+    rank:   { r5: 0.73, r6: 0.27 },
+    rarity: { rare: 0.675, epic: 0.25, leg: 0.075, myth: 0.0 } // no mythical
+  }
+};
+
+const $ = (id) => document.getElementById(id);
+const fmt = (n, maxFrac = 2) => {
+  if (!isFinite(n)) return "—";
+  return n.toLocaleString(undefined, { maximumFractionDigits: maxFrac });
+};
+
+function getInt(id) {
+  const v = Number($(id).value);
+  return Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0;
 }
 
-function avgRun(mode){
-const d=DROPS[mode];
-return d.rank.r5*expected("r5",d.rarity)+
-d.rank.r6*expected("r6",d.rarity);
+function getGoal() {
+  const chosen = document.querySelector('input[name="goalPreset"]:checked')?.value ?? "76500";
+  if (chosen === "custom") return getInt("customGoal");
+  return Math.max(0, Number(chosen));
 }
 
-function update(){
-const mode=document.getElementById("mode").value;
-const d=DROPS[mode];
-document.getElementById("energy").value=d.energy;
-
-const avg=avgRun(mode);
-document.getElementById("avgRun").value=Math.round(avg*100)/100;
-document.getElementById("cpe").value=Math.round((avg/d.energy)*100)/100;
-
-const runs=Number(document.getElementById("runs").value)||0;
-const farmPoints=avg*runs;
-document.getElementById("farmPoints").value=Math.round(farmPoints);
-
-const shardPoints=
-(Number(mystery.value)||0)*POINTS.shard.mystery+
-(Number(ancient.value)||0)*POINTS.shard.ancient+
-(Number(void.value)||0)*POINTS.shard.void+
-(Number(primal.value)||0)*POINTS.shard.primal+
-(Number(sacred.value)||0)*POINTS.shard.sacred;
-
-const total=farmPoints+shardPoints;
-document.getElementById("total").textContent=Math.round(total);
-
-const goal=Number(document.getElementById("goal").value);
-const remaining=Math.max(0,goal-total);
-document.getElementById("remaining").textContent=Math.round(remaining);
-
-if(avg>0){
-const runsNeeded=Math.ceil(remaining/avg);
-document.getElementById("energyNeeded").textContent=runsNeeded*d.energy;
-}else{
-document.getElementById("energyNeeded").textContent="—";
-}
+function expectedPointsForRank(rankKey, rarityDist) {
+  const p = GEAR_POINTS[rankKey];
+  return (
+    (rarityDist.rare || 0) * p.rare +
+    (rarityDist.epic || 0) * p.epic +
+    (rarityDist.leg  || 0) * p.leg  +
+    (rarityDist.myth || 0) * p.myth
+  );
 }
 
-document.querySelectorAll("input,select").forEach(e=>e.addEventListener("input",update));
+function avgCoinsPerRun(stageKey) {
+  const d = DROPS[stageKey];
+  const e5 = expectedPointsForRank("r5", d.rarity);
+  const e6 = expectedPointsForRank("r6", d.rarity);
+  return (d.rank.r5 * e5) + (d.rank.r6 * e6);
+}
+
+function calcShardCoins() {
+  return (
+    getInt("mystery") * SHARD_POINTS.mystery +
+    getInt("ancient") * SHARD_POINTS.ancient +
+    getInt("void")    * SHARD_POINTS.void +
+    getInt("primal")  * SHARD_POINTS.primal +
+    getInt("sacred")  * SHARD_POINTS.sacred
+  );
+}
+
+function update() {
+  const stageKey = $("stage").value;
+  const d = DROPS[stageKey];
+
+  // Goal
+  const goal = getGoal();
+  $("activeGoal").value = fmt(goal, 0);
+  $("goalOut").textContent = fmt(goal, 0);
+
+  // Auto averages
+  const avgRun = avgCoinsPerRun(stageKey);
+  const avgEnergy = avgRun / d.energyPerRun;
+
+  $("energyPerRun").value = String(d.energyPerRun);
+  $("avgCoinsRun").value = fmt(avgRun, 2);
+  $("avgCoinsEnergy").value = fmt(avgEnergy, 4);
+
+  // Planned energy -> runs
+  const energyPlanned = getInt("energyPlanned");
+  const runs = Math.floor(energyPlanned / d.energyPerRun);
+  const leftover = energyPlanned - (runs * d.energyPerRun);
+  $("fullRuns").value = `${fmt(runs,0)} runs, ${fmt(leftover,0)} energy left`;
+
+  const coinsEnergy = runs * avgRun;
+
+  // Shards
+  const coinsShards = calcShardCoins();
+
+  // Totals
+  const total = coinsEnergy + coinsShards;
+  $("coinsFromEnergy").textContent = fmt(coinsEnergy, 0);
+  $("coinsFromShards").textContent = fmt(coinsShards, 0);
+  $("totalCoins").textContent = fmt(total, 0);
+
+  const delta = total - goal;
+  const deltaText = (delta >= 0) ? `+${fmt(delta,0)}` : `-${fmt(Math.abs(delta),0)}`;
+  $("deltaOut").textContent = deltaText;
+
+  const status = $("statusLine");
+  if (goal === 0) {
+    status.innerHTML = `Set a goal to see over/under.`;
+  } else if (delta >= 0) {
+    status.innerHTML = `<span class="good">You hit the goal.</span> You’re over by <b>${fmt(delta,0)}</b>.`;
+  } else if (Math.abs(delta) <= goal * 0.15) {
+    status.innerHTML = `<span class="warn">Close.</span> You’re short by <b>${fmt(Math.abs(delta),0)}</b>.`;
+  } else {
+    status.innerHTML = `You’re short by <b>${fmt(Math.abs(delta),0)}</b>.`;
+  }
+}
+
+/* Buttons */
+$("resetBtn").addEventListener("click", () => {
+  // goal preset
+  document.querySelector('input[name="goalPreset"][value="76500"]').checked = true;
+  $("customGoal").value = 0;
+
+  // stage/energy
+  $("stage").value = "10H";
+  $("energyPlanned").value = 0;
+
+  // shards
+  ["mystery","ancient","void","primal","sacred"].forEach(id => $(id).value = 0);
+
+  update();
+});
+
+$("exampleBtn").addEventListener("click", () => {
+  document.querySelector('input[name="goalPreset"][value="128000"]').checked = true; // both souls
+  $("stage").value = "20";
+  $("energyPlanned").value = 10000;
+
+  $("mystery").value = 0;
+  $("ancient").value = 20;
+  $("void").value = 2;
+  $("primal").value = 0;
+  $("sacred").value = 1;
+
+  update();
+});
+
+/* Wire all inputs */
+document.querySelectorAll("input, select").forEach(el => el.addEventListener("input", update));
+document.querySelectorAll('input[name="goalPreset"]').forEach(el => el.addEventListener("change", update));
+
+/* Init */
 update();
 </script>
-
 </body>
 </html>

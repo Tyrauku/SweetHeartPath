@@ -6,134 +6,133 @@
 <title>Heroes Path — Heart Coins Calculator</title>
 <style>
 :root{
-  --bg:#0b0f17; --panel:#121a27; --panel2:#0f1622; --text:#e7eefc; --muted:#9fb0cc;
-  --accent:#7dd3fc; --good:#34d399; --warn:#fbbf24; --bad:#fb7185; --line:#203048;
-  --chip:#182235;
+  --bg:#0b0f17; --panel:#121a27; --text:#e7eefc; --muted:#9fb0cc;
+  --good:#34d399; --warn:#fbbf24; --line:#203048;
 }
-*{box-sizing:border-box}
 body{
-  margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;
-  background:radial-gradient(1200px 700px at 20% 0%, #12213b 0%, var(--bg) 55%) fixed;
-  color:var(--text);
+  margin:0;font-family:system-ui;background:var(--bg);color:var(--text);
 }
-.wrap{max-width:1100px;margin:24px auto;padding:0 16px 40px}
-h1{margin:0 0 10px;font-size:22px}
-.sub{color:var(--muted);margin:0 0 18px;font-size:13px}
-.grid{display:grid;gap:14px}
-@media(min-width:900px){ .grid{grid-template-columns:1.2fr .8fr} }
+.wrap{max-width:1100px;margin:24px auto;padding:0 16px}
 .card{
-  background:linear-gradient(180deg,var(--panel) 0%,var(--panel2) 100%);
-  border:1px solid rgba(125,211,252,.12);
-  border-radius:16px;padding:14px;
+  background:var(--panel);
+  border:1px solid rgba(125,211,252,.15);
+  border-radius:16px;padding:16px;margin-bottom:16px;
 }
-.card h2{margin:0 0 10px;font-size:15px}
-.row{display:grid;gap:10px}
-@media(min-width:700px){ .row.two{grid-template-columns:1fr 1fr} }
-@media(min-width:700px){ .row.three{grid-template-columns:1fr 1fr 1fr} }
-
-label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+h1{margin:0 0 12px}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
 input,select{
-  width:100%;padding:10px;border-radius:12px;
+  width:100%;padding:8px;border-radius:10px;
   border:1px solid rgba(159,176,204,.25);
   background:#0b1220;color:var(--text);
 }
-input[readonly]{
-  background:#121a27;
-  border:1px solid rgba(159,176,204,.15);
-  cursor:not-allowed;
-}
-.big{font-size:28px;font-weight:800}
-.muted{color:var(--muted);font-size:12px}
-.hr{height:1px;background:var(--line);margin:12px 0}
+input[readonly]{background:#182235;cursor:not-allowed}
+.row{display:grid;gap:10px}
+@media(min-width:700px){ .row.three{grid-template-columns:1fr 1fr 1fr} }
+.big{font-size:26px;font-weight:800}
+.hr{height:1px;background:var(--line);margin:14px 0}
 .kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.box{
-  border:1px solid rgba(159,176,204,.18);
-  background:rgba(7,11,18,.35);
-  border-radius:14px;padding:10px;
-}
-.box .v{font-weight:700;margin-top:4px}
+.box{background:#0f1622;padding:10px;border-radius:12px}
 .good{color:var(--good)} .warn{color:var(--warn)}
 </style>
 </head>
 <body>
 <div class="wrap">
+
 <h1>Heroes Path — Heart Coins Calculator</h1>
-<p class="sub">Energy per run is fixed: Stage 10H = 20, Stage 20 = 16.</p>
 
-<div class="grid">
-<div>
-
+<!-- GOAL -->
 <div class="card">
-<h2>Farming Estimator</h2>
+<label>Goal</label>
+<select id="goal">
+<option value="76500">25 Fragments (76,500)</option>
+<option value="78000">1 Soul (78,000)</option>
+<option value="128000">Both Souls (128,000)</option>
+<option value="186500">Souls + 25 Frags (186,500)</option>
+</select>
+</div>
+
+<!-- FARMING -->
+<div class="card">
+<h3>Farming Estimator</h3>
 <div class="row three">
 <div>
-<label>Farm mode</label>
-<select id="farmMode">
+<label>Farm Mode</label>
+<select id="mode">
 <option value="10H">Stage 10H</option>
 <option value="20">Stage 20</option>
 </select>
 </div>
 <div>
-<label>Energy per run (static)</label>
-<input id="energyPerRun" type="text" readonly>
+<label>Energy / Run (static)</label>
+<input id="energy" readonly>
 </div>
 <div>
-<label>Avg Coins / Run (auto)</label>
-<input id="avgCoinsPerRun" type="text" readonly>
+<label>Avg Coins / Run</label>
+<input id="avgRun" readonly>
 </div>
 </div>
 
 <div class="row three" style="margin-top:10px">
 <div>
 <label>Runs</label>
-<input id="runs" type="number" min="0" value="0">
+<input id="runs" type="number" value="0" min="0">
 </div>
 <div>
-<label>Estimated Points</label>
-<input id="farmPoints" type="text" readonly>
+<label>Farm Points</label>
+<input id="farmPoints" readonly>
 </div>
 <div>
 <label>Coins / Energy</label>
-<input id="coinsPerEnergy" type="text" readonly>
+<input id="cpe" readonly>
 </div>
 </div>
 </div>
 
-</div>
-
+<!-- SHARDS -->
 <div class="card">
-<h2>Summary</h2>
+<h3>Shards</h3>
+<div class="row three">
+<div><label>Mystery (3)</label><input id="mystery" type="number" value="0"></div>
+<div><label>Ancient (300)</label><input id="ancient" type="number" value="0"></div>
+<div><label>Void (750)</label><input id="void" type="number" value="0"></div>
+<div><label>Primal (1800)</label><input id="primal" type="number" value="0"></div>
+<div><label>Sacred (4500)</label><input id="sacred" type="number" value="0"></div>
+</div>
+</div>
+
+<!-- SUMMARY -->
+<div class="card">
+<h3>Summary</h3>
 <div>
-<p class="muted">Total Farming Points</p>
-<div id="totalPoints" class="big">0</div>
+<div>Total Points</div>
+<div id="total" class="big">0</div>
 </div>
 
 <div class="hr"></div>
 
 <div class="kpi">
 <div class="box">
-<div class="muted">Runs Needed</div>
-<div id="runsNeeded" class="v">—</div>
+<div>Remaining</div>
+<div id="remaining">0</div>
 </div>
 <div class="box">
-<div class="muted">Energy Needed</div>
-<div id="energyNeeded" class="v">—</div>
+<div>Energy Needed</div>
+<div id="energyNeeded">—</div>
+</div>
 </div>
 </div>
 
-</div>
-</div>
 </div>
 
 <script>
-// Gear point values
+// Gear points
 const POINTS = {
 r6:{myth:64,leg:51,epic:43,rare:38},
-r5:{myth:51,leg:38,epic:31,rare:26}
+r5:{myth:51,leg:38,epic:31,rare:26},
+shard:{mystery:3,ancient:300,void:750,primal:1800,sacred:4500}
 };
 
-// Drop data
-const DROPS = {
+const DROPS={
 "10H":{
 energy:20,
 rank:{r5:0.68,r6:0.32},
@@ -146,46 +145,57 @@ rarity:{rare:0.675,epic:0.25,leg:0.075,myth:0}
 }
 };
 
-function fmt(n){
-if(!isFinite(n)) return "—";
-return Math.round(n*100)/100;
-}
-
-function expectedRank(rank,rarity){
+function expected(rank,rarity){
 return rarity.rare*POINTS[rank].rare+
 rarity.epic*POINTS[rank].epic+
 rarity.leg*POINTS[rank].leg+
 rarity.myth*POINTS[rank].myth;
 }
 
-function avgCoinsPerRun(mode){
+function avgRun(mode){
 const d=DROPS[mode];
-return d.rank.r5*expectedRank("r5",d.rarity)+
-d.rank.r6*expectedRank("r6",d.rarity);
+return d.rank.r5*expected("r5",d.rarity)+
+d.rank.r6*expected("r6",d.rarity);
 }
 
 function update(){
-const mode=document.getElementById("farmMode").value;
+const mode=document.getElementById("mode").value;
 const d=DROPS[mode];
+document.getElementById("energy").value=d.energy;
 
-document.getElementById("energyPerRun").value=d.energy;
-
-const avg=avgCoinsPerRun(mode);
-document.getElementById("avgCoinsPerRun").value=fmt(avg);
+const avg=avgRun(mode);
+document.getElementById("avgRun").value=Math.round(avg*100)/100;
+document.getElementById("cpe").value=Math.round((avg/d.energy)*100)/100;
 
 const runs=Number(document.getElementById("runs").value)||0;
 const farmPoints=avg*runs;
+document.getElementById("farmPoints").value=Math.round(farmPoints);
 
-document.getElementById("farmPoints").value=fmt(farmPoints);
-document.getElementById("totalPoints").textContent=fmt(farmPoints);
+const shardPoints=
+(Number(mystery.value)||0)*POINTS.shard.mystery+
+(Number(ancient.value)||0)*POINTS.shard.ancient+
+(Number(void.value)||0)*POINTS.shard.void+
+(Number(primal.value)||0)*POINTS.shard.primal+
+(Number(sacred.value)||0)*POINTS.shard.sacred;
 
-document.getElementById("coinsPerEnergy").value=fmt(avg/d.energy);
+const total=farmPoints+shardPoints;
+document.getElementById("total").textContent=Math.round(total);
+
+const goal=Number(document.getElementById("goal").value);
+const remaining=Math.max(0,goal-total);
+document.getElementById("remaining").textContent=Math.round(remaining);
+
+if(avg>0){
+const runsNeeded=Math.ceil(remaining/avg);
+document.getElementById("energyNeeded").textContent=runsNeeded*d.energy;
+}else{
+document.getElementById("energyNeeded").textContent="—";
+}
 }
 
-document.getElementById("farmMode").addEventListener("change",update);
-document.getElementById("runs").addEventListener("input",update);
-
+document.querySelectorAll("input,select").forEach(e=>e.addEventListener("input",update));
 update();
 </script>
+
 </body>
 </html>

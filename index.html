@@ -1,178 +1,577 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Predator's Path — Event Planner</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Heroes Path — Heart Coins Calculator</title>
   <style>
-    :root{ --bg:#0e0f13; --card:#161922; --muted:#8b93a7; --txt:#e7ecf3; --accent:#ff4444; --warn:#ffb86b; }
+    :root{
+      --bg:#0b0f17; --panel:#121a27; --panel2:#0f1622; --text:#e7eefc; --muted:#9fb0cc;
+      --accent:#7dd3fc; --good:#34d399; --warn:#fbbf24; --bad:#fb7185; --line:#203048;
+      --chip:#182235;
+    }
     *{box-sizing:border-box}
-    body{margin:0;background:#0b0c10;color:var(--txt);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-    header{position:sticky;top:0;z-index:10;background:rgba(14,15,19,.7);backdrop-filter:blur(8px);border-bottom:1px solid #222834}
-    .wrap{max-width:1000px;margin:0 auto;padding:18px}
-    h1{margin:0;font-size:22px;letter-spacing:.2px;color:var(--accent)}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;
+      background:radial-gradient(1200px 700px at 20% 0%, #12213b 0%, var(--bg) 55%) fixed;
+      color:var(--text);
+    }
+    .wrap{max-width:1100px;margin:24px auto;padding:0 16px 40px}
+    h1{margin:0 0 10px;font-size:22px;letter-spacing:.2px}
+    .sub{color:var(--muted);margin:0 0 18px;font-size:13px}
+    .grid{display:grid;gap:14px}
+    @media(min-width:900px){ .grid{grid-template-columns:1.2fr .8fr} }
+    .card{
+      background:linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
+      border:1px solid rgba(125,211,252,.12);
+      border-radius:16px; padding:14px;
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+    .card h2{margin:0 0 10px;font-size:15px;color:#d7e6ff}
+    .row{display:grid;grid-template-columns:1fr;gap:10px}
+    @media(min-width:700px){ .row.two{grid-template-columns:1fr 1fr} }
+    @media(min-width:700px){ .row.three{grid-template-columns:1fr 1fr 1fr} }
 
-    .summary{display:grid;gap:12px;grid-template-columns:2fr 1fr 1fr 1fr;align-items:stretch;margin:14px 0}
-    .card{background:var(--card);border:1px solid #232835;border-radius:16px;padding:14px 16px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
-    .card h3{margin:0 0 8px 0;font-weight:600;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
-    .card .value{font-size:28px;font-weight:800}
-    .value small{font-weight:600;color:var(--muted);font-size:13px}
-    .progress{height:12px;background:#0f1320;border:1px solid #273047;border-radius:999px;overflow:hidden}
-    .progress > div{height:100%;background:linear-gradient(90deg,#ff4444,#ff8800);width:0%;transition:width .25s ease}
-
-    .controls{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
-    .controls input[type="number"], .controls select{background:#0f1320;border:1px solid #273047;border-radius:10px;color:var(--txt);padding:10px 12px;width:100%}
-    label span{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-
-    .section{margin:20px 0}
-    .panel{background:var(--card);border:1px solid #232835;border-radius:16px;padding:16px}
-    .panel h3{margin:0 0 12px 0;font-size:16px;color:var(--accent)}
-
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-    .muted{color:var(--muted);font-size:12px}
-    input[readonly]{background:#1a1d28;color:#b8bccf;border:1px solid #273047}
-
-    @media (max-width:900px){ .summary{grid-template-columns:1fr 1fr} .controls{grid-template-columns:1fr} .grid2,.grid3{grid-template-columns:1fr} }
+    label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
+    input[type="number"], input[type="text"], select{
+      width:100%; padding:10px 10px; border-radius:12px;
+      border:1px solid rgba(159,176,204,.25);
+      background:#0b1220; color:var(--text);
+      outline:none;
+    }
+    input[type="number"]:focus, input[type="text"]:focus, select:focus{
+      border-color:rgba(125,211,252,.55);
+      box-shadow:0 0 0 3px rgba(125,211,252,.15);
+    }
+    .mini{
+      padding:10px;border-radius:12px;border:1px dashed rgba(159,176,204,.25);
+      background:rgba(10,16,28,.55);
+    }
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{
+      background:var(--chip); border:1px solid rgba(159,176,204,.18);
+      padding:8px 10px;border-radius:999px;font-size:12px;color:#dce9ff;
+      display:flex;gap:8px;align-items:center;
+    }
+    .chip input{transform:translateY(1px)}
+    .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+    button{
+      border:1px solid rgba(125,211,252,.25);
+      background:rgba(125,211,252,.10);
+      color:#dff3ff;
+      padding:10px 12px;border-radius:12px;
+      cursor:pointer;
+    }
+    button:hover{background:rgba(125,211,252,.16)}
+    .summary{display:grid; gap:10px; grid-template-columns:1fr;}
+    .big{font-size:28px; font-weight:800; letter-spacing:.2px; margin:2px 0 0;}
+    .muted{color:var(--muted);font-size:12px;margin:0}
+    .kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .kpi .box{
+      border:1px solid rgba(159,176,204,.18);
+      background:rgba(7,11,18,.35);
+      border-radius:14px;padding:10px;
+    }
+    .box .v{font-size:16px;font-weight:700;margin-top:4px}
+    .hr{height:1px;background:var(--line);margin:12px 0}
+    .note{font-size:12px;color:var(--muted);line-height:1.35}
+    .good{color:var(--good)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+    .rightCol .card{position:sticky;top:14px}
+    .tiny{font-size:11px;color:var(--muted)}
+    .footer{margin-top:12px}
+    .valLine{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted);padding:6px 0;border-bottom:1px solid rgba(32,48,72,.55)}
+    .valLine:last-child{border-bottom:none}
+    .valLine b{color:#dce9ff;font-weight:650}
   </style>
 </head>
 <body>
-  <header>
-    <div class="wrap">
-      <h1>Predator's Path — Event Planner</h1>
-      <div class="summary">
+  <div class="wrap">
+    <h1>Heroes Path — Heart Coins Calculator</h1>
+    <p class="sub">Uses Stage 10H / Stage 20 drop distributions to compute average Heart Coins per run. You can also enter shards + manual gear counts.</p>
+
+    <div class="grid">
+      <!-- LEFT -->
+      <div>
         <div class="card">
-          <h3>Goal</h3>
-          <div>
-            <select id="goalSelect" style="width:100%">
-              <option value="96750">96,750 — Predator 5★ Soul</option>
-              <option value="96750">96,750 — Eternal Soulstone</option>
-            </select>
+          <h2>Goal</h2>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="goalPreset" value="76500" checked> 25 Noldua Fragments (76,500)</label>
+            <label class="chip"><input type="radio" name="goalPreset" value="78000"> 1 Soul (78,000)</label>
+            <label class="chip"><input type="radio" name="goalPreset" value="128000"> Both Souls (128,000)</label>
+            <label class="chip"><input type="radio" name="goalPreset" value="186500"> Souls + 25 Frags (186,500)</label>
+            <label class="chip"><input type="radio" name="goalPreset" value="custom"> Custom</label>
           </div>
-          <div class="muted">Or override with a custom target below.</div>
+
+          <div class="row two" style="margin-top:10px">
+            <div>
+              <label for="customGoal">Custom point goal</label>
+              <input id="customGoal" type="number" min="0" step="1" value="0" />
+              <div class="tiny" style="margin-top:6px">Only used if Goal = Custom.</div>
+            </div>
+            <div>
+              <label for="goalOverride">Goal (auto-filled)</label>
+              <input id="goalOverride" type="text" value="76,500" readonly />
+              <div class="tiny" style="margin-top:6px">This is the active target.</div>
+            </div>
+          </div>
         </div>
+
+        <div class="card" style="margin-top:14px">
+          <h2>Farming Estimator (Auto from Stage 10H / 20 drop rates)</h2>
+          <div class="mini note">
+            This computes <b>Avg Heart Coins per run</b> from your gear point table + stage drop distributions.
+            If you enable “Include farming estimate”, it will add <b>(avg coins/run × runs)</b> into your total.
+          </div>
+
+          <div class="row three" style="margin-top:10px">
+            <div>
+              <label for="farmMode">Farm mode</label>
+              <select id="farmMode">
+                <option value="10H">Stage 10H</option>
+                <option value="20">Stage 20</option>
+              </select>
+            </div>
+            <div>
+              <label for="energyPerRun">Energy per run</label>
+              <input id="energyPerRun" type="number" min="0" step="1" value="20">
+              <div class="tiny" style="margin-top:6px">Editable (defaults: 10H=20, 20=16).</div>
+            </div>
+            <div>
+              <label for="avgCoinsPerRunAuto">Avg Heart Coins per run (auto)</label>
+              <input id="avgCoinsPerRunAuto" type="text" value="—" readonly>
+            </div>
+          </div>
+
+          <div class="row three" style="margin-top:10px">
+            <div class="chip" style="justify-content:space-between;width:100%">
+              <span>Include farming estimate in totals</span>
+              <input id="useFarmEstimate" type="checkbox">
+            </div>
+            <div>
+              <label for="runs"># of runs (for farming estimate)</label>
+              <input id="runs" type="number" min="0" step="1" value="0">
+            </div>
+            <div>
+              <label for="farmPointsAdded">Estimated gear points added (auto)</label>
+              <input id="farmPointsAdded" type="text" value="0" readonly>
+            </div>
+          </div>
+
+          <div class="tiny" style="margin-top:8px">
+            Note: Stage 20 Mythical is treated as 0% (no mythical drops).
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <h2>Shards (Heart Coins)</h2>
+          <div class="row three">
+            <div>
+              <label for="mystery">Mystery (3)</label>
+              <input id="mystery" type="number" min="0" step="1" value="0">
+            </div>
+            <div>
+              <label for="ancient">Ancient (300)</label>
+              <input id="ancient" type="number" min="0" step="1" value="0">
+            </div>
+            <div>
+              <label for="void">Void (750)</label>
+              <input id="void" type="number" min="0" step="1" value="0">
+            </div>
+          </div>
+
+          <div class="row two" style="margin-top:10px">
+            <div>
+              <label for="primal">Primal (1,800)</label>
+              <input id="primal" type="number" min="0" step="1" value="0">
+            </div>
+            <div>
+              <label for="sacred">Sacred (4,500)</label>
+              <input id="sacred" type="number" min="0" step="1" value="0">
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <h2>Manual Gear Counts (Optional)</h2>
+          <div class="mini note">
+            If you want to track exact pieces you’ve gotten, use these fields. This is separate from the Farming Estimator above.
+          </div>
+
+          <div class="hr"></div>
+
+          <h2 style="margin-top:0">Rank 6</h2>
+          <div class="row two">
+            <div>
+              <label for="r6Myth">Mythical (64)</label>
+              <input id="r6Myth" type="number" min="0" step="1" value="0">
+            </div>
+            <div>
+              <label for="r6Leg">Legendary (51)</label>
+              <input id="r6Leg" type="number" min="0" step="1" value="0">
+            </div>
+          </div>
+          <div class="row two" style="margin-top:10px">
+            <div>
+              <label for="r6Epic">Epic (43)</label>
+              <input id="r6Epic" type="number" min="0" step="1" value="0">
+            </div>
+            <div>
+              <label for="r6Rare">Rare (38)</label>
+              <input id="r6Rare" type="number" min="0" step="1" value="0">
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <h2 style="margin-top:0">Rank 5</h2>
+          <div class="row two">
+            <div>
+              <label for="r5Myth">Mythical (51)</label>
+              <input id="r5Myth" type="number" min="0" step="1" value="0">
+            </div>
+            <div>
+              <label for="r5Leg">Legendary (38)</label>
+              <input id="r5Leg" type="number" min="0" step="1" value="0">
+            </div>
+          </div>
+          <div class="row two" style="margin-top:10px">
+            <div>
+              <label for="r5Epic">Epic (31)</label>
+              <input id="r5Epic" type="number" min="0" step="1" value="0">
+            </div>
+            <div>
+              <label for="r5Rare">Rare (26)</label>
+              <input id="r5Rare" type="number" min="0" step="1" value="0">
+            </div>
+          </div>
+
+          <div class="btns">
+            <button id="reset">Reset all inputs</button>
+            <button id="example">Example fill</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="rightCol">
         <div class="card">
-          <h3>Coins Needed</h3>
-          <div class="value"><span id="pointsNeeded">96,750</span></div>
-          <div class="progress" style="margin-top:8px"><div id="progressBar"></div></div>
+          <h2>Summary</h2>
+
+          <div class="summary">
+            <div>
+              <p class="muted">Total Heart Coins earned</p>
+              <div id="totalPoints" class="big">0</div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div>
+              <p class="muted">Target goal</p>
+              <div id="goalPoints" class="big">76,500</div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div>
+              <p class="muted">Remaining to goal</p>
+              <div id="remainingPoints" class="big">76,500</div>
+              <p id="statusLine" class="muted">Keep going.</p>
+            </div>
+
+            <div class="kpi">
+              <div class="box">
+                <div class="muted">Shard points</div>
+                <div id="shardPoints" class="v">0</div>
+              </div>
+              <div class="box">
+                <div class="muted">Gear points (manual)</div>
+                <div id="gearPoints" class="v">0</div>
+              </div>
+              <div class="box">
+                <div class="muted">Farming points added</div>
+                <div id="farmPointsKpi" class="v">0</div>
+              </div>
+              <div class="box">
+                <div class="muted">Avg coins / energy (auto)</div>
+                <div id="coinsPerEnergyAuto" class="v">—</div>
+              </div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="kpi">
+              <div class="box">
+                <div class="muted">Est. runs needed (auto)</div>
+                <div id="runsNeeded" class="v">—</div>
+              </div>
+              <div class="box">
+                <div class="muted">Est. energy needed (auto)</div>
+                <div id="energyNeeded" class="v">—</div>
+              </div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div>
+              <div class="valLine"><span>Rank 6 Mythical</span><b id="line_r6Myth">0</b></div>
+              <div class="valLine"><span>Rank 6 Legendary</span><b id="line_r6Leg">0</b></div>
+              <div class="valLine"><span>Rank 6 Epic</span><b id="line_r6Epic">0</b></div>
+              <div class="valLine"><span>Rank 6 Rare</span><b id="line_r6Rare">0</b></div>
+              <div class="valLine"><span>Rank 5 Mythical</span><b id="line_r5Myth">0</b></div>
+              <div class="valLine"><span>Rank 5 Legendary</span><b id="line_r5Leg">0</b></div>
+              <div class="valLine"><span>Rank 5 Epic</span><b id="line_r5Epic">0</b></div>
+              <div class="valLine"><span>Rank 5 Rare</span><b id="line_r5Rare">0</b></div>
+            </div>
+
+            <div class="footer note">
+              Your averages are based on: <b>Stage 10H:</b> 5★ 68% / 6★ 32% and Rare 45% / Epic 32% / Leg 18% / Myth 5%.
+              <b>Stage 20:</b> 5★ 73% / 6★ 27% and Rare 67.5% / Epic 25% / Leg 7.5% / Myth 0%.
+            </div>
+          </div>
         </div>
-        <div class="card">
-          <h3>Coins Planned</h3>
-          <div class="value" id="currentPoints">0</div>
-        </div>
-        <div class="card">
-          <h3>Remaining</h3>
-          <div class="value" id="remainingPoints">96,750</div>
-        </div>
       </div>
+    </div><!-- /grid -->
+  </div><!-- /wrap -->
 
-      <div class="controls">
-        <label>
-          <span>Custom Target (optional)</span>
-          <input type="number" id="targetInput" placeholder="e.g., 96750" min="0" />
-        </label>
-        <label>
-          <span>Current Coins Already Earned</span>
-          <input type="number" id="alreadyCoins" placeholder="e.g., 4000" min="0" />
-        </label>
-      </div>
-    </div>
-  </header>
+<script>
+  // Points (from your message)
+  const POINTS = {
+    shards: { mystery: 3, ancient: 300, void: 750, primal: 1800, sacred: 4500 },
+    gear: {
+      r6: { myth: 64, leg: 51, epic: 43, rare: 38 },
+      r5: { myth: 51, leg: 38, epic: 31, rare: 26 }
+    }
+  };
 
-  <main class="wrap">
-    <div class="section panel">
-      <h3>Energy Plan</h3>
-      <div class="grid3">
-        <label>
-          <span>10 Hard — Energy Planned</span>
-          <input type="number" id="energy10H" min="0" placeholder="e.g., 5000" />
-        </label>
-        <label>
-          <span>Coins per Energy (10H)</span>
-          <input type="text" id="cpe10H" value="1.92 × Energy" readonly />
-        </label>
-        <label>
-          <span>Subtotal Coins (10H)</span>
-          <input type="text" id="coins10H" value="0 × 1.92 = 0" readonly />
-        </label>
-      </div>
-      <div class="grid3" style="margin-top:10px">
-        <label>
-          <span>20 Normal — Energy Planned</span>
-          <input type="number" id="energy20N" min="0" placeholder="e.g., 5000" />
-        </label>
-        <label>
-          <span>Coins per Energy (20N)</span>
-          <input type="text" id="cpe20N" value="2.16 × Energy" readonly />
-        </label>
-        <label>
-          <span>Subtotal Coins (20N)</span>
-          <input type="text" id="coins20N" value="0 × 2.16 = 0" readonly />
-        </label>
-      </div>
-      <p class="muted" style="margin-top:8px">Multipliers use standard dungeon drop-rate math.</p>
-    </div>
+  // Drop distributions provided by you
+  // (Assuming rank and rarity are independent, as is typical for these calculators.)
+  const DROPS = {
+    "10H": {
+      rank: { r5: 0.68, r6: 0.32 },
+      rarity: { rare: 0.45, epic: 0.32, leg: 0.18, myth: 0.05 },
+      defaultEnergy: 20
+    },
+    "20": {
+      rank: { r5: 0.73, r6: 0.27 },
+      rarity: { rare: 0.675, epic: 0.25, leg: 0.075, myth: 0.0 }, // no mythical
+      defaultEnergy: 16
+    }
+  };
 
-    <div class="section panel">
-      <h3>Shards You Plan to Open</h3>
-      <div class="grid2">
-        <label>
-          <span>Mystery Shards ×</span>
-          <input type="number" id="mysteryQty" min="0" placeholder="0" />
-        </label>
-        <label>
-          <span>Ancient Shards ×</span>
-          <input type="number" id="ancientQty" min="0" placeholder="0" />
-        </label>
-      </div>
-      <div class="grid2" style="margin-top:10px">
-        <label>
-          <span>Void Shards ×</span>
-          <input type="number" id="voidQty" min="0" placeholder="0" />
-        </label>
-        <label>
-          <span>Primal Shards ×</span>
-          <input type="number" id="primalQty" min="0" placeholder="0" />
-        </label>
-      </div>
-      <div class="grid2" style="margin-top:10px">
-        <label>
-          <span>Sacred Shards ×</span>
-          <input type="number" id="sacredQty" min="0" placeholder="0" />
-        </label>
-        <div></div>
-      </div>
-      <p class="muted">Shard values: Mystery 3 • Ancient 300 • Void 750 • Primal 1,800 • Sacred 4,500.</p>
-    </div>
+  const fmt = (n) => {
+    if (!isFinite(n)) return "—";
+    const isInt = Math.abs(n - Math.round(n)) < 1e-9;
+    return (isInt ? Math.round(n) : n).toLocaleString(undefined, { maximumFractionDigits: 2 });
+  };
 
-    <div class="section panel">
-      <h3>Milestones</h3>
-      <div id="milestones"></div>
-    </div>
-  </main>
+  function getNum(id){
+    const el = document.getElementById(id);
+    const v = Number(el.value);
+    return isFinite(v) ? v : 0;
+  }
 
-  <script>
-    const $ = (s,c=document)=>c.querySelector(s);
-    const num = v => Number(v||0) || 0;
-    const fmt = n => n.toLocaleString(undefined,{maximumFractionDigits:0});
+  function setText(id, val){
+    document.getElementById(id).textContent = val;
+  }
 
-    const MILESTONES = [
-      { name: 'Predator 5★ Soul', pts: 96750 },
-      { name: 'Eternal Soulstone', pts: 96750 },
-    ];
+  function activeGoal(){
+    const chosen = document.querySelector('input[name="goalPreset"]:checked')?.value ?? "76500";
+    if (chosen === "custom"){
+      return Math.max(0, Math.floor(getNum("customGoal")));
+    }
+    return Math.max(0, Number(chosen));
+  }
 
-    const SHARD_POINTS = { mystery:3, ancient:300, void:750, primal:1800, sacred:4500 };
-    const CPE_10H = 1.92;
-    const CPE_20N = 2.16;
+  function updateGoalUI(){
+    const g = activeGoal();
+    document.getElementById("goalOverride").value = fmt(g);
+    setText("goalPoints", fmt(g));
+  }
 
-    const els = {
-      goalSelect: $('#goalSelect'),
-      pointsNeeded: $('#pointsNeeded'),
-      currentPoints: $('#currentPoints'),
-      remainingPoints: $('#remainingPoints'),
-      progressBar: $('#progressBar'),
-      targetInput: $('#targetInput'),
-      alreadyCoins: $('#alreadyCoins'),
-      energy10H: $('#energy10H'), coins10H: $('#coins10H'),
-      energy20N: $('#energy20N'), coins20N: $('#coins20N'),
-      mysteryQty: $('#mysteryQty'), ancientQty: $('#ancientQty'), voidQty: $('#voidQty'), primalQty
+  function calcShardPoints(){
+    const mystery = getNum("mystery") * POINTS.shards.mystery;
+    const ancient = getNum("ancient") * POINTS.shards.ancient;
+    const v = getNum("void") * POINTS.shards.void;
+    const primal = getNum("primal") * POINTS.shards.primal;
+    const sacred = getNum("sacred") * POINTS.shards.sacred;
+    return mystery + ancient + v + primal + sacred;
+  }
+
+  function calcManualGearPoints(){
+    const r6Myth = getNum("r6Myth") * POINTS.gear.r6.myth;
+    const r6Leg  = getNum("r6Leg")  * POINTS.gear.r6.leg;
+    const r6Epic = getNum("r6Epic") * POINTS.gear.r6.epic;
+    const r6Rare = getNum("r6Rare") * POINTS.gear.r6.rare;
+
+    const r5Myth = getNum("r5Myth") * POINTS.gear.r5.myth;
+    const r5Leg  = getNum("r5Leg")  * POINTS.gear.r5.leg;
+    const r5Epic = getNum("r5Epic") * POINTS.gear.r5.epic;
+    const r5Rare = getNum("r5Rare") * POINTS.gear.r5.rare;
+
+    setText("line_r6Myth", fmt(r6Myth));
+    setText("line_r6Leg",  fmt(r6Leg));
+    setText("line_r6Epic", fmt(r6Epic));
+    setText("line_r6Rare", fmt(r6Rare));
+    setText("line_r5Myth", fmt(r5Myth));
+    setText("line_r5Leg",  fmt(r5Leg));
+    setText("line_r5Epic", fmt(r5Epic));
+    setText("line_r5Rare", fmt(r5Rare));
+
+    return r6Myth + r6Leg + r6Epic + r6Rare + r5Myth + r5Leg + r5Epic + r5Rare;
+  }
+
+  function expectedPointsForRank(rankKey, rarityDist){
+    // rankKey = "r5" or "r6"
+    const p = POINTS.gear[rankKey];
+    return (
+      (rarityDist.rare || 0) * p.rare +
+      (rarityDist.epic || 0) * p.epic +
+      (rarityDist.leg  || 0) * p.leg  +
+      (rarityDist.myth || 0) * p.myth
+    );
+  }
+
+  function calcAvgCoinsPerRunAuto(mode){
+    const d = DROPS[mode];
+    const e5 = expectedPointsForRank("r5", d.rarity);
+    const e6 = expectedPointsForRank("r6", d.rarity);
+    return (d.rank.r5 * e5) + (d.rank.r6 * e6);
+  }
+
+  function updateFarmAuto(){
+    const mode = document.getElementById("farmMode").value;
+    const avg = calcAvgCoinsPerRunAuto(mode);
+
+    document.getElementById("avgCoinsPerRunAuto").value = fmt(avg);
+
+    const energyPerRun = getNum("energyPerRun");
+    const cpe = (avg > 0 && energyPerRun > 0) ? (avg / energyPerRun) : NaN;
+    setText("coinsPerEnergyAuto", isFinite(cpe) ? fmt(cpe) : "—");
+
+    const useFarm = document.getElementById("useFarmEstimate").checked;
+    const runs = getNum("runs");
+    const farmAdded = (useFarm && avg > 0 && runs > 0) ? (avg * runs) : 0;
+
+    document.getElementById("farmPointsAdded").value = fmt(farmAdded);
+    setText("farmPointsKpi", fmt(farmAdded));
+
+    return { avg, cpe, farmAdded, energyPerRun };
+  }
+
+  function updateEstimates(remaining, avgCoinsPerRun, energyPerRun){
+    if (avgCoinsPerRun > 0 && remaining > 0){
+      const runs = Math.ceil(remaining / avgCoinsPerRun);
+      setText("runsNeeded", fmt(runs));
+      if (energyPerRun > 0){
+        setText("energyNeeded", fmt(runs * energyPerRun));
+      } else {
+        setText("energyNeeded", "—");
+      }
+    } else {
+      setText("runsNeeded", "—");
+      setText("energyNeeded", "—");
+    }
+  }
+
+  function update(){
+    updateGoalUI();
+
+    const shardPts = calcShardPoints();
+    const manualGearPts = calcManualGearPoints();
+
+    const farm = updateFarmAuto();
+    const total = shardPts + manualGearPts + farm.farmAdded;
+
+    const goal = activeGoal();
+    const remaining = Math.max(0, goal - total);
+
+    setText("shardPoints", fmt(shardPts));
+    setText("gearPoints", fmt(manualGearPts));
+    setText("totalPoints", fmt(total));
+    setText("remainingPoints", fmt(remaining));
+
+    const status = document.getElementById("statusLine");
+    if (total >= goal && goal > 0){
+      status.innerHTML = `<span class="good">Goal reached.</span> You’re at <b>${fmt(total)}</b>.`;
+    } else if (goal === 0){
+      status.innerHTML = `Set a goal to see remaining.`;
+    } else if (remaining <= goal * 0.15){
+      status.innerHTML = `<span class="warn">Close.</span> Only <b>${fmt(remaining)}</b> left.`;
+    } else {
+      status.innerHTML = `Keep going. <b>${fmt(remaining)}</b> remaining.`;
+    }
+
+    // Estimates use the auto avg coins/run (from stage mode), not manual counts.
+    updateEstimates(remaining, farm.avg, farm.energyPerRun);
+  }
+
+  // Auto-set energy per run when mode changes (still editable after)
+  function applyDefaultEnergyForMode(){
+    const mode = document.getElementById("farmMode").value;
+    const current = document.getElementById("energyPerRun").value;
+    // Only overwrite if current is blank or 0
+    if (current === "" || Number(current) === 0){
+      document.getElementById("energyPerRun").value = DROPS[mode].defaultEnergy;
+    } else {
+      // If user hasn't touched it and it's one of the defaults, keep it aligned
+      // This avoids surprising overwrites.
+      // (No-op)
+    }
+  }
+
+  // Events
+  const allInputs = Array.from(document.querySelectorAll('input, select'));
+  allInputs.forEach(i => i.addEventListener('input', update));
+  document.querySelectorAll('input[name="goalPreset"]').forEach(r => r.addEventListener('change', update));
+  document.getElementById("farmMode").addEventListener("change", () => {
+    // set default energy if empty/0, else leave user value
+    const mode = document.getElementById("farmMode").value;
+    const e = document.getElementById("energyPerRun");
+    if (e.value === "" || Number(e.value) === 0){
+      e.value = DROPS[mode].defaultEnergy;
+    }
+    update();
+  });
+
+  document.getElementById("reset").addEventListener("click", () => {
+    ["customGoal","mystery","ancient","void","primal","sacred",
+     "r6Myth","r6Leg","r6Epic","r6Rare","r5Myth","r5Leg","r5Epic","r5Rare",
+     "runs"
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.value = 0;
+    });
+
+    document.getElementById("useFarmEstimate").checked = false;
+    document.getElementById("farmMode").value = "10H";
+    document.getElementById("energyPerRun").value = DROPS["10H"].defaultEnergy;
+
+    document.querySelector('input[name="goalPreset"][value="76500"]').checked = true;
+    update();
+  });
+
+  document.getElementById("example").addEventListener("click", () => {
+    document.getElementById("ancient").value = 20;
+    document.getElementById("void").value = 2;
+    document.getElementById("mystery").value = 50;
+
+    document.getElementById("r6Leg").value = 25;
+    document.getElementById("r6Epic").value = 60;
+    document.getElementById("r6Rare").value = 40;
+    document.getElementById("r5Epic").value = 30;
+
+    document.getElementById("farmMode").value = "10H";
+    document.getElementById("useFarmEstimate").checked = true;
+    document.getElementById("runs").value = 100;
+    document.getElementById("energyPerRun").value = DROPS["10H"].defaultEnergy;
+
+    update();
+  });
+
+  // Init
+  document.getElementById("energyPerRun").value = DROPS["10H"].defaultEnergy;
+  update();
+</script>
+</body>
+</html>
